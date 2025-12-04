@@ -48,7 +48,11 @@ export default function Sortie() {
         setError(null);
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 60000);
+        const timeoutId = setTimeout(() => {
+          if (!controller.signal.aborted) {
+            controller.abort();
+          }
+        }, 60000);
 
         console.log("Fetching sortie data...");
         const response = await fetch("/api/sortie", {
