@@ -4,7 +4,7 @@ export const handleRecruitmentData: RequestHandler = async (_req, res) => {
   try {
     console.log("Recruitment endpoint called");
     const googleScriptUrl =
-      "https://script.google.com/macros/s/AKfycbwxBq-SQQy615zPDODiglrrUaiwpRy_j8PlYFwqn1Zgpz9szCgG2xd6JninXnT60nG_/exec";
+      "https://script.google.com/macros/s/AKfycbyjlSMF3hCNzt9Ifa_jox3NdRAlfHzNYwzaZtdvoZ7YKYY4qyOKQ45M4rdZtX4ryJTu/exec";
     console.log("Fetching from:", googleScriptUrl);
 
     const controller = new AbortController();
