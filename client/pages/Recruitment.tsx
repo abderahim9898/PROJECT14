@@ -3,7 +3,7 @@ import Layout from "@/components/Layout";
 import { ArrowLeft, AlertCircle, RotateCcw } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Link, Navigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 interface RecruitmentRecord {
@@ -21,8 +21,6 @@ interface MonthData {
 }
 
 export default function Recruitment() {
-  // Redirect existing Recruitment route to the Departures page where the recruitment UI now lives
-  return <Navigate to="/departures" replace />;
   const [data, setData] = useState<RecruitmentRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
