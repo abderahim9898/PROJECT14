@@ -538,14 +538,14 @@ export default function Sortie() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.length === 0 ? (
+                    {filteredData.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="px-4 py-4 text-center text-gray-500 dark:text-gray-400">
                           Aucune donnée disponible
                         </td>
                       </tr>
                     ) : (
-                      data.map((record, idx) => (
+                      filteredData.map((record, idx) => (
                         <tr
                           key={`${record.qz}-${record.month}-${record.years}-${record.sex}-${idx}`}
                           className="border-b border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
