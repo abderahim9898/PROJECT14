@@ -148,12 +148,6 @@ export default function Sortie() {
     });
   }, [data, selectedYear, selectedMonth, selectedDepartment, selectedContract]);
 
-  // Set default year on first load
-  useEffect(() => {
-    if (uniqueYears.length > 0 && !selectedYear) {
-      setSelectedYear(uniqueYears[0]);
-    }
-  }, [uniqueYears, selectedYear]);
 
   // Statistics based on filtered data
   const stats = useMemo(() => {
