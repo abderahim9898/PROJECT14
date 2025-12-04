@@ -63,8 +63,9 @@ export default function Recruitment() {
     let isMounted = true;
     let controller: AbortController | null = null;
     let timeoutId: NodeJS.Timeout | null = null;
+    let retryTimeoutId: NodeJS.Timeout | null = null;
 
-    const fetchRecruitmentData = async () => {
+    const fetchRecruitmentData = async (attempt = 1) => {
       try {
         if (!isMounted) return;
         setLoading(true);
@@ -74,18 +75,15 @@ export default function Recruitment() {
         timeoutId = setTimeout(() => {
           console.warn("Recruitment fetch timeout - aborting");
           controller?.abort();
-        }, 45000);
+        }, 30000);
 
-        console.log("Fetching recruitment data from /api/recruitment");
+        console.log(`Fetching recruitment data (attempt ${attempt})...`);
         const response = await fetch("/api/recruitment", {
           signal: controller.signal,
           headers: {
             "Accept": "application/json",
-            "Content-Type": "application/json",
           },
           method: "GET",
-          mode: "cors",
-          credentials: "include",
         });
 
         if (timeoutId) clearTimeout(timeoutId);
@@ -150,31 +148,40 @@ export default function Recruitment() {
           }
         }
       } catch (err) {
-        console.error("Error fetching recruitment data:", err);
+        console.error("Error fetching recruitment data (attempt " + attempt + "):", err);
         if (isMounted) {
           let errorMessage = "Failed to load recruitment data";
+          let shouldRetry = false;
 
           if (err instanceof TypeError) {
             console.error("TypeError details:", (err as Error).message);
             if ((err as Error).message.includes("Failed to fetch")) {
-              errorMessage = "Unable to connect to server. Please try again in a moment.";
+              errorMessage = "Network connection issue. Retrying...";
+              shouldRetry = attempt < 3;
             } else {
               errorMessage = `Network error: ${(err as Error).message}`;
             }
           } else if (err instanceof Error) {
             if (err.name === "AbortError") {
-              errorMessage = "Request timed out. Please try again.";
+              errorMessage = "Request timed out. Retrying...";
+              shouldRetry = attempt < 2;
             } else {
               errorMessage = err.message;
             }
           }
 
-          setError(errorMessage);
-          setData([]);
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
+          if (shouldRetry) {
+            console.log(`Scheduling retry in 2 seconds...`);
+            retryTimeoutId = setTimeout(() => {
+              if (isMounted) {
+                fetchRecruitmentData(attempt + 1);
+              }
+            }, 2000);
+          } else {
+            setError(errorMessage);
+            setData([]);
+            setLoading(false);
+          }
         }
       }
     };
@@ -184,6 +191,7 @@ export default function Recruitment() {
     return () => {
       isMounted = false;
       if (timeoutId) clearTimeout(timeoutId);
+      if (retryTimeoutId) clearTimeout(retryTimeoutId);
       if (controller) {
         try {
           controller.abort();
