@@ -37,13 +37,10 @@ export default function Sortie() {
         const timeoutId = setTimeout(() => controller.abort(), 60000);
 
         console.log("Fetching sortie data...");
-        const response = await fetch(
-          "https://script.google.com/macros/s/AKfycbwUke_wNtq7o6ErgQeXIxN1As9ccVSfqJqXfLq3bKcUZN3TWt6LtYaHay9QGGtM2Hw7/exec",
-          {
-            signal: controller.signal,
-            headers: { "Accept": "application/json" },
-          }
-        );
+        const response = await fetch("/api/sortie", {
+          signal: controller.signal,
+          headers: { "Accept": "application/json" },
+        });
 
         clearTimeout(timeoutId);
 

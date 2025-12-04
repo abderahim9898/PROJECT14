@@ -8,6 +8,7 @@ import { handlePerformanceData } from "./routes/performance";
 import { handleTurnoverData } from "./routes/turnover";
 import { handleAdminAuth, handleGoogleSheetsUpload } from "./routes/admin";
 import { handleRecruitmentData } from "./routes/recruitment";
+import { handleSortieData } from "./routes/sortie";
 
 export function createServer() {
   const app = express();
@@ -34,6 +35,7 @@ export function createServer() {
   app.get("/api/performance", handlePerformanceData);
   app.get("/api/turnover", handleTurnoverData);
   app.get("/api/recruitment", handleRecruitmentData);
+  app.get("/api/sortie", handleSortieData);
   app.get("/api/admin/auth", handleAdminAuth);
   app.post("/api/admin/upload", handleGoogleSheetsUpload);
 
