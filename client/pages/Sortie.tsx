@@ -299,9 +299,25 @@ export default function Sortie() {
 
             {/* Main Chart - Sorties par Mois et QZ */}
             <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                Sorties par Mois et QZ
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  Sorties par Mois et QZ
+                </h2>
+                <div className="flex items-center gap-3">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Année:</label>
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {uniqueYears.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
               <div className="w-full h-96 bg-white dark:bg-slate-900 rounded-lg p-4">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData}>
