@@ -347,11 +347,12 @@ export default function Index() {
       // Abort all fetch requests
       abortControllers.forEach(controller => {
         try {
-          if (controller && !controller.signal.aborted) {
+          if (controller) {
+            // Safely check and abort - accessing signal.aborted can throw in some cases
             controller.abort();
           }
         } catch (e) {
-          // Silently ignore abort errors
+          // Silently ignore all abort errors - signal may already be aborted
         }
       });
     };
