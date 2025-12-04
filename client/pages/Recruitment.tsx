@@ -76,7 +76,7 @@ export default function Recruitment() {
         timeoutId = setTimeout(() => {
           console.warn("Recruitment fetch timeout - aborting");
           controller?.abort();
-        }, 30000);
+        }, 50000);
 
         console.log(`Fetching recruitment data (attempt ${attempt})...`);
         const response = await fetch("/api/recruitment", {
