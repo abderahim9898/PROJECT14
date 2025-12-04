@@ -11,13 +11,15 @@ import {
 
 const formatDate = (dateString: string): string => {
   try {
-    const date = new Date(dateString);
-    // Add 1 day to match the desired display format
-    date.setDate(date.getDate() + 1);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
+    // Parse the ISO date string and extract date components directly
+    const match = dateString.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+      const year = match[1];
+      const month = match[2];
+      const day = match[3];
+      return `${day}-${month}-${year}`;
+    }
+    return dateString;
   } catch {
     return dateString;
   }
