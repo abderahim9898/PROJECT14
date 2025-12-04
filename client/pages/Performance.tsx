@@ -501,13 +501,17 @@ export default function Performance() {
     fetchPerformanceData();
 
     return () => {
-      isMounted = false;
-      if (!abortController.signal.aborted) {
-        try {
-          abortController.abort();
-        } catch (e) {
-          // Ignore errors from abort
+      try {
+        isMounted = false;
+        if (!abortController.signal.aborted) {
+          try {
+            abortController.abort();
+          } catch (e) {
+            // Ignore errors from abort
+          }
         }
+      } catch (e) {
+        // Ignore all cleanup errors
       }
     };
   }, [retryKey]);
