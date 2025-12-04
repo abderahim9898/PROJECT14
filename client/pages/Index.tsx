@@ -102,7 +102,7 @@ export default function Index() {
       const controller = new AbortController();
       abortControllers.push(controller);
       const timeoutId = setTimeout(() => {
-        if (isMounted) {
+        if (isMounted && !controller.signal.aborted) {
           try {
             controller.abort();
           } catch (e) {
