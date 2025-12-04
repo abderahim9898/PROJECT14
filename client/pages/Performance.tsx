@@ -500,10 +500,12 @@ export default function Performance() {
 
     return () => {
       isMounted = false;
-      try {
-        abortController.abort();
-      } catch (e) {
-        // Ignore errors from abort
+      if (!abortController.signal.aborted) {
+        try {
+          abortController.abort();
+        } catch (e) {
+          // Ignore errors from abort
+        }
       }
     };
   }, [retryKey]);
