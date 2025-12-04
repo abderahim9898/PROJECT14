@@ -193,15 +193,19 @@ export default function Recruitment() {
     fetchRecruitmentData();
 
     return () => {
-      isMounted = false;
-      if (timeoutId) clearTimeout(timeoutId);
-      if (retryTimeoutId) clearTimeout(retryTimeoutId);
-      if (controller && !controller.signal.aborted) {
-        try {
-          controller.abort();
-        } catch (e) {
-          // Ignore abort errors
+      try {
+        isMounted = false;
+        if (timeoutId) clearTimeout(timeoutId);
+        if (retryTimeoutId) clearTimeout(retryTimeoutId);
+        if (controller && !controller.signal.aborted) {
+          try {
+            controller.abort();
+          } catch (e) {
+            // Ignore abort errors
+          }
         }
+      } catch (e) {
+        // Ignore all cleanup errors
       }
     };
   }, [retryKey]);
