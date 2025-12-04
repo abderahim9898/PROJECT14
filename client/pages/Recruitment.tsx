@@ -139,12 +139,14 @@ export default function Recruitment() {
           if (isMounted) {
             setData(processedData);
             setError(null);
+            setLoading(false);
           }
         } else {
           console.warn("Invalid data format received from server");
           if (isMounted) {
             setData([]);
             setError("No recruitment data available");
+            setLoading(false);
           }
         }
       } catch (err) {
