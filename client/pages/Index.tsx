@@ -353,7 +353,7 @@ export default function Index() {
       try {
         abortControllers.slice().forEach(controller => {
           try {
-            if (controller) {
+            if (controller && !controller.signal.aborted) {
               controller.abort();
             }
           } catch (e) {
