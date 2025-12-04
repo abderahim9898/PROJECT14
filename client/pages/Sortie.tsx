@@ -191,11 +191,11 @@ export default function Sortie() {
   );
 
   const totalFemale = useMemo(() => {
-    return stats.bySex["F"] || stats.bySex["f"] || stats.bySex["Femme"] || 0;
+    return stats.bySex["M"] || stats.bySex["m"] || 0;
   }, [stats.bySex]);
 
   const totalMale = useMemo(() => {
-    return stats.bySex["M"] || stats.bySex["m"] || stats.bySex["H"] || stats.bySex["h"] || stats.bySex["Homme"] || 0;
+    return stats.bySex["H"] || stats.bySex["h"] || 0;
   }, [stats.bySex]);
 
   const statCards: StatCard[] = [
