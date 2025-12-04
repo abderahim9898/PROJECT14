@@ -75,7 +75,9 @@ export default function Recruitment() {
         controller = new AbortController();
         timeoutId = setTimeout(() => {
           console.warn("Recruitment fetch timeout - aborting");
-          controller?.abort();
+          if (controller && !controller.signal.aborted) {
+            controller.abort();
+          }
         }, 40000);
 
         console.log(`Fetching recruitment data (attempt ${attempt})...`);
