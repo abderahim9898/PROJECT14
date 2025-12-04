@@ -295,6 +295,7 @@ export default function Recruitment() {
 
   const temporaryRecruits = stats.byInterime["Oui"] || stats.byInterime["OUI"] || 0;
   const permanentRecruits = stats.totalRecruits - temporaryRecruits;
+  const uniqueInterimTypes = Object.keys(stats.byInterime).length;
 
   const statCards: StatCard[] = [
     {
@@ -305,8 +306,8 @@ export default function Recruitment() {
     },
     {
       icon: <Briefcase className="w-6 h-6" />,
-      label: "Recrutements CDI",
-      value: permanentRecruits,
+      label: "Type de Interime",
+      value: uniqueInterimTypes,
       color: "bg-green-500/10 border-green-200 dark:border-green-900",
     },
     {
