@@ -194,7 +194,7 @@ export default function Recruitment() {
       isMounted = false;
       if (timeoutId) clearTimeout(timeoutId);
       if (retryTimeoutId) clearTimeout(retryTimeoutId);
-      if (controller) {
+      if (controller && !controller.signal.aborted) {
         try {
           controller.abort();
         } catch (e) {
