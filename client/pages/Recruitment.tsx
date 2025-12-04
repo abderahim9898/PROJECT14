@@ -66,6 +66,7 @@ export default function Recruitment() {
     let retryTimeoutId: NodeJS.Timeout | null = null;
 
     const fetchRecruitmentData = async (attempt = 1) => {
+      let shouldRetry = false;
       try {
         if (!isMounted) return;
         setLoading(true);
@@ -153,7 +154,6 @@ export default function Recruitment() {
         console.error("Error fetching recruitment data (attempt " + attempt + "):", err);
         if (isMounted) {
           let errorMessage = "Failed to load recruitment data";
-          let shouldRetry = false;
 
           if (err instanceof TypeError) {
             console.error("TypeError details:", (err as Error).message);
@@ -184,11 +184,6 @@ export default function Recruitment() {
             setData([]);
             setLoading(false);
           }
-        }
-      } finally {
-        // Ensure loading is false if no retry is scheduled
-        if (!shouldRetry && isMounted) {
-          setLoading(false);
         }
       }
     };
