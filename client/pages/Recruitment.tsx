@@ -310,12 +310,7 @@ export default function Recruitment() {
       value: uniqueInterimTypes,
       color: "bg-green-500/10 border-green-200 dark:border-green-900",
     },
-    {
-      icon: <TrendingUp className="w-6 h-6" />,
-      label: "Recrutements Intérim",
-      value: temporaryRecruits,
-      color: "bg-orange-500/10 border-orange-200 dark:border-orange-900",
-    },
+    
     {
       icon: <Calendar className="w-6 h-6" />,
       label: "Départements",
