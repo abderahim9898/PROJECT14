@@ -137,18 +137,16 @@ export default function Sortie() {
     };
   }, [data]);
 
-  // Chart data - by month and QZ
+  // Chart data - by month and QZ (only includes QZs that have actual data for each month)
   const chartData = useMemo(() => {
     const monthMap = new Map<string | number, MonthData>();
 
+    // Initialize months without pre-populating QZs
     for (let i = 1; i <= 12; i++) {
-      const monthData: MonthData = { month: `Mois ${i}` };
-      uniqueQZs.forEach((qz) => {
-        monthData[qz] = 0;
-      });
-      monthMap.set(i, monthData);
+      monthMap.set(i, { month: `Mois ${i}` });
     }
 
+    // Add QZ data only when it exists
     data.forEach((record) => {
       const monthNum = parseInt(String(record.month)) || 0;
       if (monthMap.has(monthNum)) {
@@ -157,11 +155,14 @@ export default function Sortie() {
       }
     });
 
-    return Array.from(monthMap.values()).sort((a, b) => {
-      const aMonth = parseInt(String(a.month).replace("Mois ", "")) || 0;
-      const bMonth = parseInt(String(b.month).replace("Mois ", "")) || 0;
-      return aMonth - bMonth;
-    });
+    // Only include months that have data
+    return Array.from(monthMap.values())
+      .filter((monthData) => Object.keys(monthData).length > 1) // More than just 'month' key
+      .sort((a, b) => {
+        const aMonth = parseInt(String(a.month).replace("Mois ", "")) || 0;
+        const bMonth = parseInt(String(b.month).replace("Mois ", "")) || 0;
+        return aMonth - bMonth;
+      });
   }, [data, uniqueQZs]);
 
   // Chart data - by department
