@@ -1,25 +1,23 @@
 import { RequestHandler } from "express";
 
 export const handleRecruitmentData: RequestHandler = async (_req, res) => {
-  try {
-    console.log("Recruitment endpoint called");
-    const googleScriptUrl =
-      "https://script.google.com/macros/s/AKfycbyjlSMF3hCNzt9Ifa_jox3NdRAlfHzNYwzaZtdvoZ7YKYY4qyOKQ45M4rdZtX4ryJTu/exec";
-    console.log("Fetching from:", googleScriptUrl);
+  const maxRetries = 3;
+  const retryDelay = 1000;
 
-    // Set response headers
-    res.setHeader("Content-Type", "application/json");
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-
-    const controller = new AbortController();
-    const timeout = setTimeout(() => {
-      console.warn("Recruitment fetch timeout triggered");
-      controller.abort();
-    }, 45000);
-
-    let response;
+  const attemptFetch = async (attempt: number): Promise<Response | null> => {
     try {
-      response = await fetch(googleScriptUrl, {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => {
+        console.warn(`Recruitment fetch timeout triggered (attempt ${attempt})`);
+        controller.abort();
+      }, 35000);
+
+      const googleScriptUrl =
+        "https://script.google.com/macros/s/AKfycbyjlSMF3hCNzt9Ifa_jox3NdRAlfHzNYwzaZtdvoZ7YKYY4qyOKQ45M4rdZtX4ryJTu/exec";
+
+      console.log(`Recruitment attempt ${attempt}: Fetching from Google Script...`);
+
+      const response = await fetch(googleScriptUrl, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -27,21 +25,52 @@ export const handleRecruitmentData: RequestHandler = async (_req, res) => {
         },
         signal: controller.signal,
       });
-    } catch (fetchError) {
+
       clearTimeout(timeout);
+      return response;
+    } catch (fetchError) {
       if (fetchError instanceof Error && fetchError.name === "AbortError") {
-        console.error("Recruitment fetch timeout or aborted");
-        return res.status(504).json({
-          error: "Gateway Timeout",
-          message: "Google Script request timed out",
-        });
+        console.warn(`Recruitment fetch timeout on attempt ${attempt}`);
+        return null;
       }
-      console.error("Fetch network error:", fetchError);
+      console.error(`Recruitment fetch network error on attempt ${attempt}:`, fetchError);
       throw fetchError;
     }
+  };
 
-    clearTimeout(timeout);
-    console.log("Response status:", response.status, "Content-Type:", response.headers.get("content-type"));
+  try {
+    console.log("Recruitment endpoint called");
+
+    // Set response headers
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+
+    let response: Response | null = null;
+    let lastError: Error | null = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      response = await attemptFetch(attempt);
+
+      if (response) {
+        console.log(
+          `Recruitment attempt ${attempt} success - Status: ${response.status}, Content-Type: ${response.headers.get("content-type")}`
+        );
+        break;
+      }
+
+      if (attempt < maxRetries) {
+        console.log(`Recruitment retry in ${retryDelay}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, retryDelay));
+      }
+    }
+
+    if (!response) {
+      console.error("All recruitment fetch attempts failed");
+      return res.status(504).json({
+        error: "Gateway Timeout",
+        message: "Failed to fetch recruitment data after multiple attempts",
+      });
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
