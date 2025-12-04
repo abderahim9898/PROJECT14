@@ -534,6 +534,31 @@ export default function Recruitment() {
                   </ResponsiveContainer>
                 </div>
               </div>
+
+              {/* Recruitment by Contract Type */}
+              <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                  Recrutements par Contrat
+                </h2>
+                <div className="w-full h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={interimeChartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
+                      <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} fontSize={12} />
+                      <YAxis label={{ value: "Nombre de Recrutements", angle: -90, position: "insideLeft" }} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "rgba(0, 0, 0, 0.8)",
+                          border: "none",
+                          borderRadius: "8px",
+                          color: "#fff",
+                        }}
+                      />
+                      <Bar dataKey="value" fill="#8b5cf6" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
             </div>
 
             {/* Detail Table */}
