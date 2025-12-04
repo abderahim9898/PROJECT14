@@ -343,9 +343,7 @@ export default function Index() {
       // Abort all fetch requests
       abortControllers.forEach(controller => {
         try {
-          if (!controller.signal.aborted) {
-            controller.abort();
-          }
+          controller.abort();
         } catch (e) {
           // Silently ignore abort errors
         }
