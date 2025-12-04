@@ -45,6 +45,8 @@ export default function Recruitment() {
 
   useEffect(() => {
     let isMounted = true;
+    let controller: AbortController | null = null;
+    let timeoutId: NodeJS.Timeout | null = null;
 
     const fetchRecruitmentData = async () => {
       try {
@@ -52,26 +54,38 @@ export default function Recruitment() {
         setLoading(true);
         setError(null);
 
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000);
+        controller = new AbortController();
+        timeoutId = setTimeout(() => {
+          console.warn("Recruitment fetch timeout - aborting");
+          controller?.abort();
+        }, 45000);
 
-        console.log("Fetching recruitment data...");
+        console.log("Fetching recruitment data from /api/recruitment");
         const response = await fetch("/api/recruitment", {
           signal: controller.signal,
-          headers: { "Accept": "application/json" },
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+          },
           method: "GET",
+          mode: "cors",
+          credentials: "include",
         });
 
-        clearTimeout(timeoutId);
+        if (timeoutId) clearTimeout(timeoutId);
 
         if (!isMounted) return;
 
+        console.log("Recruitment fetch response status:", response.status);
+
         if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Server error response:", errorText);
           throw new Error(`Server error: ${response.status} ${response.statusText}`);
         }
 
         const rawData = await response.json();
-        console.log("Recruitment data received:", rawData);
+        console.log("Recruitment data received, records count:", Array.isArray(rawData) ? rawData.length : "invalid");
 
         if (!isMounted) return;
 
@@ -110,22 +124,35 @@ export default function Recruitment() {
           console.log("Processed recruitment records:", processedData.length);
           if (isMounted) {
             setData(processedData);
+            setError(null);
           }
         } else {
-          console.warn("No recruitment data received from server");
+          console.warn("Invalid data format received from server");
           if (isMounted) {
             setData([]);
+            setError("No recruitment data available");
           }
         }
       } catch (err) {
         console.error("Error fetching recruitment data:", err);
         if (isMounted) {
           let errorMessage = "Failed to load recruitment data";
+
           if (err instanceof TypeError) {
-            errorMessage = "Network error: Unable to reach the server. Please check your connection.";
+            console.error("TypeError details:", (err as Error).message);
+            if ((err as Error).message.includes("Failed to fetch")) {
+              errorMessage = "Unable to connect to server. Please try again in a moment.";
+            } else {
+              errorMessage = `Network error: ${(err as Error).message}`;
+            }
           } else if (err instanceof Error) {
-            errorMessage = err.message;
+            if (err.name === "AbortError") {
+              errorMessage = "Request timed out. Please try again.";
+            } else {
+              errorMessage = err.message;
+            }
           }
+
           setError(errorMessage);
           setData([]);
         }
@@ -140,6 +167,14 @@ export default function Recruitment() {
 
     return () => {
       isMounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
+      if (controller) {
+        try {
+          controller.abort();
+        } catch (e) {
+          // Ignore abort errors
+        }
+      }
     };
   }, [retryKey]);
 
