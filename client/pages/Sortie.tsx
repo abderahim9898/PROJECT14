@@ -190,9 +190,13 @@ export default function Sortie() {
     {} as Record<string, string>
   );
 
-  const averagePerQZ = useMemo(() => {
-    return stats.uniqueQZCount > 0 ? (stats.totalBaja / stats.uniqueQZCount).toFixed(1) : 0;
-  }, [stats.totalBaja, stats.uniqueQZCount]);
+  const totalFemale = useMemo(() => {
+    return stats.bySex["F"] || stats.bySex["f"] || stats.bySex["Femme"] || 0;
+  }, [stats.bySex]);
+
+  const totalMale = useMemo(() => {
+    return stats.bySex["M"] || stats.bySex["m"] || stats.bySex["H"] || stats.bySex["h"] || stats.bySex["Homme"] || 0;
+  }, [stats.bySex]);
 
   const statCards: StatCard[] = [
     {
@@ -203,15 +207,15 @@ export default function Sortie() {
     },
     {
       icon: <Users className="w-6 h-6" />,
-      label: "Moyenne par QZ",
-      value: averagePerQZ,
-      color: "bg-blue-500/10 border-blue-200 dark:border-blue-900",
+      label: "Total Femme",
+      value: totalFemale,
+      color: "bg-pink-500/10 border-pink-200 dark:border-pink-900",
     },
     {
-      icon: <Calendar className="w-6 h-6" />,
-      label: "Sexe (M/F)",
-      value: Object.keys(stats.bySex).length,
-      color: "bg-purple-500/10 border-purple-200 dark:border-purple-900",
+      icon: <Users className="w-6 h-6" />,
+      label: "Total Homme",
+      value: totalMale,
+      color: "bg-blue-500/10 border-blue-200 dark:border-blue-900",
     },
     {
       icon: <Briefcase className="w-6 h-6" />,
