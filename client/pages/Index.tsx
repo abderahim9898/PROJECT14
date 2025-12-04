@@ -34,20 +34,13 @@ const categories = [
   {
     icon: "📊",
     title: "Turnover",
-    
-    href: "/turnover",
-  },
 
-  {
-    icon: "🚪",
-    title: "Suivi des départs ou sorties",
-   
-    href: "/departures",
+    href: "/turnover",
   },
   {
     icon: "🌍",
     title: "Suivi de la main-d'œuvre par secteur",
-    
+
     href: "/sector",
   },
 ];
