@@ -396,7 +396,9 @@ export default function Performance() {
         setError(null);
 
         const timeoutId = setTimeout(() => {
-          abortController.abort();
+          if (!abortController.signal.aborted) {
+            abortController.abort();
+          }
         }, 180000);
 
         const response = await fetch("/api/performance", {
