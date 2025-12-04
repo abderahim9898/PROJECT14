@@ -333,36 +333,40 @@ export default function Index() {
     fetchAllStats();
 
     return () => {
-      isMounted = false;
-
-      // Clear all timeouts
       try {
-        timeoutIds.slice().forEach(id => {
-          try {
-            clearTimeout(id);
-          } catch (e) {
-            // Ignore errors
-          }
-        });
-        timeoutIds.length = 0;
-      } catch (e) {
-        // Ignore iteration errors
-      }
+        isMounted = false;
 
-      // Abort all fetch requests - use slice to avoid issues with concurrent modifications
-      try {
-        abortControllers.slice().forEach(controller => {
-          try {
-            if (controller && !controller.signal.aborted) {
-              controller.abort();
+        // Clear all timeouts
+        try {
+          timeoutIds.slice().forEach(id => {
+            try {
+              clearTimeout(id);
+            } catch (e) {
+              // Ignore errors
             }
-          } catch (e) {
-            // Silently ignore all abort errors
-          }
-        });
-        abortControllers.length = 0;
+          });
+          timeoutIds.length = 0;
+        } catch (e) {
+          // Ignore iteration errors
+        }
+
+        // Abort all fetch requests - use slice to avoid issues with concurrent modifications
+        try {
+          abortControllers.slice().forEach(controller => {
+            try {
+              if (controller && !controller.signal.aborted) {
+                controller.abort();
+              }
+            } catch (e) {
+              // Silently ignore all abort errors
+            }
+          });
+          abortControllers.length = 0;
+        } catch (e) {
+          // Ignore iteration errors
+        }
       } catch (e) {
-        // Ignore iteration errors
+        // Ignore all cleanup errors
       }
     };
   }, []);
