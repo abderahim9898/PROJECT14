@@ -71,7 +71,11 @@ export default function Turnover() {
         setError(null);
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+        const timeoutId = setTimeout(() => {
+          if (!controller.signal.aborted) {
+            controller.abort();
+          }
+        }, 60000); // 60 second timeout
 
         console.log("Fetching turnover data...");
         const response = await fetch("/api/turnover", {
