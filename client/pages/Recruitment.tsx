@@ -519,47 +519,6 @@ export default function Recruitment() {
                 </div>
               </div>
 
-              {/* CDI vs Interim */}
-              <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                  CDI vs Intérim
-                </h2>
-                <div className="w-full h-80 flex items-center justify-center">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={[
-                          { name: "CDI", value: permanentRecruits },
-                          { name: "Intérim", value: temporaryRecruits },
-                        ]}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, value }) => `${name}: ${value}`}
-                        outerRadius={100}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {[
-                          { name: "CDI", value: permanentRecruits },
-                          { name: "Intérim", value: temporaryRecruits },
-                        ].map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "rgba(0, 0, 0, 0.8)",
-                          border: "none",
-                          borderRadius: "8px",
-                          color: "#fff",
-                        }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
               {/* Recruitment by Contract Type */}
               <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
