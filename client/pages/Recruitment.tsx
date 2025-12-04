@@ -626,7 +626,7 @@ export default function Recruitment() {
                           key={`${record.date}-${record.qz}-${record.departement}-${idx}`}
                           className="border-b border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
                         >
-                          <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">{record.date}</td>
+                          <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">{formatDate(record.date)}</td>
                           <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{record.semaine}</td>
                           <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{record.qz}</td>
                           <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{record.mois}</td>
