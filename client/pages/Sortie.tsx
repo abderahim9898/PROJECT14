@@ -37,6 +37,9 @@ export default function Sortie() {
   const [error, setError] = useState<string | null>(null);
   const [retryKey, setRetryKey] = useState(0);
   const [selectedYear, setSelectedYear] = useState<string | number>("");
+  const [selectedMonth, setSelectedMonth] = useState<string>("");
+  const [selectedDepartment, setSelectedDepartment] = useState<string>("");
+  const [selectedContract, setSelectedContract] = useState<string>("");
 
   useEffect(() => {
     const fetchSortieData = async () => {
@@ -116,9 +119,34 @@ export default function Sortie() {
     return years;
   }, [data]);
 
+  const uniqueMonths = useMemo(() => {
+    return Array.from(new Set(data.map((r) => r.month))).sort((a, b) =>
+      parseInt(String(a)) - parseInt(String(b))
+    );
+  }, [data]);
+
+  const uniqueDepartments = useMemo(() => {
+    return Array.from(new Set(data.map((r) => r.department))).sort();
+  }, [data]);
+
+  const uniqueContracts = useMemo(() => {
+    return Array.from(new Set(data.map((r) => r.contrado))).sort();
+  }, [data]);
+
   const uniqueQZs = useMemo(() => {
     return Array.from(new Set(data.map((r) => r.qz))).sort();
   }, [data]);
+
+  // Filter data based on selected filters
+  const filteredData = useMemo(() => {
+    return data.filter((record) => {
+      if (selectedYear && String(record.years) !== String(selectedYear)) return false;
+      if (selectedMonth && String(record.month) !== String(selectedMonth)) return false;
+      if (selectedDepartment && record.department !== selectedDepartment) return false;
+      if (selectedContract && record.contrado !== selectedContract) return false;
+      return true;
+    });
+  }, [data, selectedYear, selectedMonth, selectedDepartment, selectedContract]);
 
   // Set default year on first load
   useEffect(() => {
@@ -127,15 +155,15 @@ export default function Sortie() {
     }
   }, [uniqueYears, selectedYear]);
 
-  // Statistics
+  // Statistics based on filtered data
   const stats = useMemo(() => {
-    const totalBaja = data.reduce((sum, r) => sum + r.nbBaja, 0);
+    const totalBaja = filteredData.reduce((sum, r) => sum + r.nbBaja, 0);
     const byQZ: Record<string, number> = {};
     const bySex: Record<string, number> = {};
     const byContrado: Record<string, number> = {};
     const byDepartment: Record<string, number> = {};
 
-    data.forEach((record) => {
+    filteredData.forEach((record) => {
       byQZ[record.qz] = (byQZ[record.qz] || 0) + record.nbBaja;
       bySex[record.sex] = (bySex[record.sex] || 0) + record.nbBaja;
       byContrado[record.contrado] = (byContrado[record.contrado] || 0) + record.nbBaja;
@@ -150,7 +178,7 @@ export default function Sortie() {
       byDepartment,
       uniqueQZCount: Object.keys(byQZ).length,
     };
-  }, [data]);
+  }, [filteredData]);
 
   // Chart data - by month and QZ (only includes QZs that have actual data for each month)
   const chartData = useMemo(() => {
@@ -161,14 +189,12 @@ export default function Sortie() {
       monthMap.set(i, { month: `Mois ${i}/${selectedYear}` });
     }
 
-    // Add QZ data only when it exists and matches selected year
-    data.forEach((record) => {
-      if (String(record.years) === String(selectedYear)) {
-        const monthNum = parseInt(String(record.month)) || 0;
-        if (monthMap.has(monthNum)) {
-          const monthData = monthMap.get(monthNum)!;
-          monthData[record.qz] = (monthData[record.qz] as number || 0) + record.nbBaja;
-        }
+    // Add QZ data only when it exists in filtered data
+    filteredData.forEach((record) => {
+      const monthNum = parseInt(String(record.month)) || 0;
+      if (monthMap.has(monthNum)) {
+        const monthData = monthMap.get(monthNum)!;
+        monthData[record.qz] = (monthData[record.qz] as number || 0) + record.nbBaja;
       }
     });
 
@@ -178,23 +204,23 @@ export default function Sortie() {
       const bMonth = parseInt(String(b.month).split("/")[0].replace("Mois ", "")) || 0;
       return aMonth - bMonth;
     });
-  }, [data, selectedYear]);
+  }, [filteredData, selectedYear]);
 
-  // Chart data - by department
+  // Chart data - by department (updated from filtered stats)
   const departmentChartData = useMemo(() => {
     return Object.entries(stats.byDepartment)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 8);
-  }, [stats.byDepartment]);
+  }, [stats]);
 
-  // Chart data - by sex
+  // Chart data - by sex (updated from filtered stats)
   const sexChartData = useMemo(() => {
     return Object.entries(stats.bySex).map(([name, value]) => ({
       name,
       value,
     }));
-  }, [stats.bySex]);
+  }, [stats]);
 
   const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"];
   const qzColors = uniqueQZs.reduce(
