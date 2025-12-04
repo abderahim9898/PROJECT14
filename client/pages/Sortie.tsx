@@ -133,10 +133,6 @@ export default function Sortie() {
     return Array.from(new Set(data.map((r) => r.contrado))).sort();
   }, [data]);
 
-  const uniqueQZs = useMemo(() => {
-    return Array.from(new Set(filteredData.map((r) => r.qz))).sort();
-  }, [filteredData]);
-
   // Filter data based on selected filters
   const filteredData = useMemo(() => {
     return data.filter((record) => {
@@ -147,6 +143,10 @@ export default function Sortie() {
       return true;
     });
   }, [data, selectedYear, selectedMonth, selectedDepartment, selectedContract]);
+
+  const uniqueQZs = useMemo(() => {
+    return Array.from(new Set(filteredData.map((r) => r.qz))).sort();
+  }, [filteredData]);
 
 
   // Statistics based on filtered data
