@@ -189,6 +189,10 @@ export default function Sortie() {
     {} as Record<string, string>
   );
 
+  const averagePerQZ = useMemo(() => {
+    return stats.uniqueQZCount > 0 ? (stats.totalBaja / stats.uniqueQZCount).toFixed(1) : 0;
+  }, [stats.totalBaja, stats.uniqueQZCount]);
+
   const statCards: StatCard[] = [
     {
       icon: <TrendingDown className="w-6 h-6" />,
@@ -198,8 +202,8 @@ export default function Sortie() {
     },
     {
       icon: <Users className="w-6 h-6" />,
-      label: "Zones (QZ)",
-      value: stats.uniqueQZCount,
+      label: "Moyenne par QZ",
+      value: averagePerQZ,
       color: "bg-blue-500/10 border-blue-200 dark:border-blue-900",
     },
     {
