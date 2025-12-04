@@ -15,7 +15,7 @@ export const handleRecruitmentData: RequestHandler = async (_req, res) => {
     const timeout = setTimeout(() => {
       console.warn("Recruitment fetch timeout triggered");
       controller.abort();
-    }, 25000);
+    }, 45000);
 
     let response;
     try {
