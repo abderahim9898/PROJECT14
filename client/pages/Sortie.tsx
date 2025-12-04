@@ -134,8 +134,8 @@ export default function Sortie() {
   }, [data]);
 
   const uniqueQZs = useMemo(() => {
-    return Array.from(new Set(data.map((r) => r.qz))).sort();
-  }, [data]);
+    return Array.from(new Set(filteredData.map((r) => r.qz))).sort();
+  }, [filteredData]);
 
   // Filter data based on selected filters
   const filteredData = useMemo(() => {
