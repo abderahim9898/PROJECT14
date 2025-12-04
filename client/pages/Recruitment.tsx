@@ -185,6 +185,11 @@ export default function Recruitment() {
             setLoading(false);
           }
         }
+      } finally {
+        // Ensure loading is false if no retry is scheduled
+        if (!shouldRetry && isMounted) {
+          setLoading(false);
+        }
       }
     };
 
