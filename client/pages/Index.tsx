@@ -337,13 +337,19 @@ export default function Index() {
 
       // Clear all timeouts
       timeoutIds.forEach(id => {
-        clearTimeout(id);
+        try {
+          clearTimeout(id);
+        } catch (e) {
+          // Ignore errors
+        }
       });
 
       // Abort all fetch requests
       abortControllers.forEach(controller => {
         try {
-          controller.abort();
+          if (controller && !controller.signal.aborted) {
+            controller.abort();
+          }
         } catch (e) {
           // Silently ignore abort errors
         }
