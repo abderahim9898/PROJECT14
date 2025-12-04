@@ -455,7 +455,7 @@ export default function Sortie() {
               {/* Department Chart */}
               <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                  Sorties par Département (Top 8)
+                  Sorties par Département
                 </h2>
                 <div className="w-full h-80">
                   <ResponsiveContainer width="100%" height="100%">
