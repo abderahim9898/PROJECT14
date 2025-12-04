@@ -36,6 +36,7 @@ export default function Sortie() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [retryKey, setRetryKey] = useState(0);
+  const [selectedYear, setSelectedYear] = useState<string | number>("");
 
   useEffect(() => {
     const fetchSortieData = async () => {
@@ -108,9 +109,23 @@ export default function Sortie() {
     fetchSortieData();
   }, [retryKey]);
 
+  const uniqueYears = useMemo(() => {
+    const years = Array.from(new Set(data.map((r) => r.years))).sort((a, b) =>
+      parseInt(String(b)) - parseInt(String(a))
+    );
+    return years;
+  }, [data]);
+
   const uniqueQZs = useMemo(() => {
     return Array.from(new Set(data.map((r) => r.qz))).sort();
   }, [data]);
+
+  // Set default year on first load
+  useEffect(() => {
+    if (uniqueYears.length > 0 && !selectedYear) {
+      setSelectedYear(uniqueYears[0]);
+    }
+  }, [uniqueYears, selectedYear]);
 
   // Statistics
   const stats = useMemo(() => {
@@ -141,29 +156,29 @@ export default function Sortie() {
   const chartData = useMemo(() => {
     const monthMap = new Map<string | number, MonthData>();
 
-    // Initialize months without pre-populating QZs
+    // Initialize months 1-12 without pre-populating QZs
     for (let i = 1; i <= 12; i++) {
-      monthMap.set(i, { month: `Mois ${i}` });
+      monthMap.set(i, { month: `Mois ${i}/${selectedYear}` });
     }
 
-    // Add QZ data only when it exists
+    // Add QZ data only when it exists and matches selected year
     data.forEach((record) => {
-      const monthNum = parseInt(String(record.month)) || 0;
-      if (monthMap.has(monthNum)) {
-        const monthData = monthMap.get(monthNum)!;
-        monthData[record.qz] = (monthData[record.qz] as number || 0) + record.nbBaja;
+      if (String(record.years) === String(selectedYear)) {
+        const monthNum = parseInt(String(record.month)) || 0;
+        if (monthMap.has(monthNum)) {
+          const monthData = monthMap.get(monthNum)!;
+          monthData[record.qz] = (monthData[record.qz] as number || 0) + record.nbBaja;
+        }
       }
     });
 
-    // Only include months that have data
-    return Array.from(monthMap.values())
-      .filter((monthData) => Object.keys(monthData).length > 1) // More than just 'month' key
-      .sort((a, b) => {
-        const aMonth = parseInt(String(a.month).replace("Mois ", "")) || 0;
-        const bMonth = parseInt(String(b.month).replace("Mois ", "")) || 0;
-        return aMonth - bMonth;
-      });
-  }, [data, uniqueQZs]);
+    // Return all months (1-12) with the selected year, sorted
+    return Array.from(monthMap.values()).sort((a, b) => {
+      const aMonth = parseInt(String(a.month).split("/")[0].replace("Mois ", "")) || 0;
+      const bMonth = parseInt(String(b.month).split("/")[0].replace("Mois ", "")) || 0;
+      return aMonth - bMonth;
+    });
+  }, [data, selectedYear]);
 
   // Chart data - by department
   const departmentChartData = useMemo(() => {
