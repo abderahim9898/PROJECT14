@@ -8,20 +8,38 @@ export const handleRecruitmentData: RequestHandler = async (_req, res) => {
     console.log("Fetching from:", googleScriptUrl);
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+    const timeout = setTimeout(() => {
+      console.warn("Recruitment fetch timeout triggered");
+      controller.abort();
+    }, 20000);
 
-    const response = await fetch(googleScriptUrl, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      signal: controller.signal,
-    });
+    let response;
+    try {
+      response = await fetch(googleScriptUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+      });
+    } catch (fetchError) {
+      clearTimeout(timeout);
+      if (fetchError instanceof Error && fetchError.name === "AbortError") {
+        console.error("Recruitment fetch timeout or aborted");
+        return res.status(504).json({
+          error: "Gateway Timeout",
+          message: "Google Script request timed out",
+        });
+      }
+      throw fetchError;
+    }
 
     clearTimeout(timeout);
     console.log("Response status:", response.status);
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Google Script error response:", errorText);
       throw new Error(`Google Script returned ${response.status}`);
     }
 
