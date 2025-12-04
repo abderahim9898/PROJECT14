@@ -9,6 +9,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 interface SortieRecord {
   qz: string;
   month: string | number;
+  years: string | number;
   sex: string;
   contrado: string;
   department: string;
@@ -58,19 +59,21 @@ export default function Sortie() {
 
           for (let i = 1; i < rawData.length; i++) {
             const row = rawData[i];
-            if (!row || !Array.isArray(row) || row.length < 6) continue;
+            if (!row || !Array.isArray(row) || row.length < 7) continue;
 
             const qz = (row[0] || "").toString().trim();
             const month = row[1] || "";
-            const sex = (row[2] || "").toString().trim();
-            const contrado = (row[3] || "").toString().trim();
-            const department = (row[4] || "").toString().trim();
-            const nbBaja = parseInt(row[5]) || 0;
+            const years = row[2] || "";
+            const sex = (row[3] || "").toString().trim();
+            const contrado = (row[4] || "").toString().trim();
+            const department = (row[5] || "").toString().trim();
+            const nbBaja = parseInt(row[6]) || 0;
 
-            if (qz && month && department) {
+            if (qz && month && years && department) {
               processedData.push({
                 qz,
                 month,
+                years,
                 sex,
                 contrado,
                 department,
@@ -214,6 +217,7 @@ export default function Sortie() {
                     <tr className="border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
                       <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-white">QZ</th>
                       <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-white">Mois</th>
+                      <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-white">Années</th>
                       <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-white">Sexe</th>
                       <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-white">Contrado</th>
                       <th className="px-4 py-3 text-left font-semibold text-gray-900 dark:text-white">Département</th>
@@ -223,18 +227,19 @@ export default function Sortie() {
                   <tbody>
                     {data.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="px-4 py-4 text-center text-gray-500 dark:text-gray-400">
+                        <td colSpan={7} className="px-4 py-4 text-center text-gray-500 dark:text-gray-400">
                           Aucune donnée disponible
                         </td>
                       </tr>
                     ) : (
                       data.map((record, idx) => (
                         <tr
-                          key={`${record.qz}-${record.month}-${record.sex}-${idx}`}
+                          key={`${record.qz}-${record.month}-${record.years}-${record.sex}-${idx}`}
                           className="border-b border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
                         >
                           <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">{record.qz}</td>
                           <td className="px-4 py-3 text-gray-600 dark:text-gray-400">Mois {record.month}</td>
+                          <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{record.years}</td>
                           <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{record.sex}</td>
                           <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{record.contrado}</td>
                           <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{record.department}</td>
