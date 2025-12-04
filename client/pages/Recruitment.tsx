@@ -44,28 +44,36 @@ export default function Recruitment() {
   const [selectedSector, setSelectedSector] = useState<string>("");
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchRecruitmentData = async () => {
       try {
+        if (!isMounted) return;
         setLoading(true);
         setError(null);
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 60000);
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
 
         console.log("Fetching recruitment data...");
         const response = await fetch("/api/recruitment", {
           signal: controller.signal,
           headers: { "Accept": "application/json" },
+          method: "GET",
         });
 
         clearTimeout(timeoutId);
 
+        if (!isMounted) return;
+
         if (!response.ok) {
-          throw new Error(`Failed to fetch recruitment data: ${response.status}`);
+          throw new Error(`Server error: ${response.status} ${response.statusText}`);
         }
 
         const rawData = await response.json();
         console.log("Recruitment data received:", rawData);
+
+        if (!isMounted) return;
 
         if (Array.isArray(rawData) && rawData.length > 1) {
           const processedData: RecruitmentRecord[] = [];
@@ -100,22 +108,39 @@ export default function Recruitment() {
           }
 
           console.log("Processed recruitment records:", processedData.length);
-          setData(processedData);
+          if (isMounted) {
+            setData(processedData);
+          }
         } else {
           console.warn("No recruitment data received from server");
-          setData([]);
+          if (isMounted) {
+            setData([]);
+          }
         }
       } catch (err) {
         console.error("Error fetching recruitment data:", err);
-        const errorMessage = err instanceof Error ? err.message : "Failed to load recruitment data";
-        setError(errorMessage);
-        setData([]);
+        if (isMounted) {
+          let errorMessage = "Failed to load recruitment data";
+          if (err instanceof TypeError) {
+            errorMessage = "Network error: Unable to reach the server. Please check your connection.";
+          } else if (err instanceof Error) {
+            errorMessage = err.message;
+          }
+          setError(errorMessage);
+          setData([]);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchRecruitmentData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [retryKey]);
 
   const uniqueDepartments = useMemo(() => {
