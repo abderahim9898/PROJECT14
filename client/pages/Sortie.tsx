@@ -1,10 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
 import Layout from "@/components/Layout";
-import { ArrowLeft, AlertCircle, RotateCcw } from "lucide-react";
+import { ArrowLeft, AlertCircle, RotateCcw, TrendingDown, Users, Calendar, Briefcase } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, 
+  PieChart, Pie, Cell, LineChart, Line
+} from "recharts";
 
 interface SortieRecord {
   qz: string;
@@ -19,6 +22,13 @@ interface SortieRecord {
 interface MonthData {
   month: string | number;
   [key: string]: string | number;
+}
+
+interface StatCard {
+  icon: React.ReactNode;
+  label: string;
+  value: number | string;
+  color: string;
 }
 
 export default function Sortie() {
@@ -102,6 +112,32 @@ export default function Sortie() {
     return Array.from(new Set(data.map((r) => r.qz))).sort();
   }, [data]);
 
+  // Statistics
+  const stats = useMemo(() => {
+    const totalBaja = data.reduce((sum, r) => sum + r.nbBaja, 0);
+    const byQZ: Record<string, number> = {};
+    const bySex: Record<string, number> = {};
+    const byContrado: Record<string, number> = {};
+    const byDepartment: Record<string, number> = {};
+
+    data.forEach((record) => {
+      byQZ[record.qz] = (byQZ[record.qz] || 0) + record.nbBaja;
+      bySex[record.sex] = (bySex[record.sex] || 0) + record.nbBaja;
+      byContrado[record.contrado] = (byContrado[record.contrado] || 0) + record.nbBaja;
+      byDepartment[record.department] = (byDepartment[record.department] || 0) + record.nbBaja;
+    });
+
+    return {
+      totalBaja,
+      byQZ,
+      bySex,
+      byContrado,
+      byDepartment,
+      uniqueQZCount: Object.keys(byQZ).length,
+    };
+  }, [data]);
+
+  // Chart data - by month and QZ
   const chartData = useMemo(() => {
     const monthMap = new Map<string | number, MonthData>();
 
@@ -128,6 +164,22 @@ export default function Sortie() {
     });
   }, [data, uniqueQZs]);
 
+  // Chart data - by department
+  const departmentChartData = useMemo(() => {
+    return Object.entries(stats.byDepartment)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 8);
+  }, [stats.byDepartment]);
+
+  // Chart data - by sex
+  const sexChartData = useMemo(() => {
+    return Object.entries(stats.bySex).map(([name, value]) => ({
+      name,
+      value,
+    }));
+  }, [stats.bySex]);
+
   const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"];
   const qzColors = uniqueQZs.reduce(
     (acc, qz, idx) => {
@@ -137,6 +189,33 @@ export default function Sortie() {
     {} as Record<string, string>
   );
 
+  const statCards: StatCard[] = [
+    {
+      icon: <TrendingDown className="w-6 h-6" />,
+      label: "Total Sorties",
+      value: stats.totalBaja,
+      color: "bg-red-500/10 border-red-200 dark:border-red-900",
+    },
+    {
+      icon: <Users className="w-6 h-6" />,
+      label: "Zones (QZ)",
+      value: stats.uniqueQZCount,
+      color: "bg-blue-500/10 border-blue-200 dark:border-blue-900",
+    },
+    {
+      icon: <Calendar className="w-6 h-6" />,
+      label: "Sexe (M/F)",
+      value: Object.keys(stats.bySex).length,
+      color: "bg-purple-500/10 border-purple-200 dark:border-purple-900",
+    },
+    {
+      icon: <Briefcase className="w-6 h-6" />,
+      label: "Types Contrats",
+      value: Object.keys(stats.byContrado).length,
+      color: "bg-green-500/10 border-green-200 dark:border-green-900",
+    },
+  ];
+
   return (
     <Layout>
       <div className="space-y-6 p-4 md:p-6">
@@ -145,7 +224,7 @@ export default function Sortie() {
             <ArrowLeft size={24} />
           </Link>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            🚪 Sortie
+            🚪 Sorties
           </h1>
         </div>
 
@@ -170,6 +249,31 @@ export default function Sortie() {
           </Alert>
         ) : (
           <div className="space-y-6">
+            {/* Stat Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {statCards.map((card, idx) => (
+                <div
+                  key={idx}
+                  className={`rounded-lg border p-6 ${card.color} backdrop-blur-sm transition-all hover:shadow-lg`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                        {card.label}
+                      </p>
+                      <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+                        {card.value}
+                      </p>
+                    </div>
+                    <div className="text-gray-600 dark:text-gray-400 opacity-70">
+                      {card.icon}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Main Chart - Sorties par Mois et QZ */}
             <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                 Sorties par Mois et QZ
@@ -177,7 +281,7 @@ export default function Sortie() {
               <div className="w-full h-96 bg-white dark:bg-slate-900 rounded-lg p-4">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
                     <XAxis dataKey="month" angle={-45} textAnchor="end" height={80} />
                     <YAxis label={{ value: "Nombre de Sorties", angle: -90, position: "insideLeft" }} />
                     <Tooltip
@@ -203,9 +307,73 @@ export default function Sortie() {
               </div>
             </div>
 
+            {/* Secondary Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Department Chart */}
+              <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                  Sorties par Département (Top 8)
+                </h2>
+                <div className="w-full h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={departmentChartData} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
+                      <XAxis type="number" />
+                      <YAxis dataKey="name" type="category" width={120} fontSize={12} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "rgba(0, 0, 0, 0.8)",
+                          border: "none",
+                          borderRadius: "8px",
+                          color: "#fff",
+                        }}
+                      />
+                      <Bar dataKey="value" fill="#ef4444" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Sex Distribution */}
+              <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                  Distribution par Sexe
+                </h2>
+                <div className="w-full h-80 flex items-center justify-center">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={sexChartData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, value }) => `${name}: ${value}`}
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {sexChartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "rgba(0, 0, 0, 0.8)",
+                          border: "none",
+                          borderRadius: "8px",
+                          color: "#fff",
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+
+            {/* Detail Table */}
             <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                Données Détaillées de la Sortie
+                Données Détaillées des Sorties
               </h2>
 
               <div className="overflow-x-auto">
@@ -235,7 +403,7 @@ export default function Sortie() {
                           className="border-b border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
                         >
                           <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">{record.qz}</td>
-                          <td className="px-4 py-3 text-gray-600 dark:text-gray-400">Mois {record.month}</td>
+                          <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{record.month}</td>
                           <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{record.years}</td>
                           <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{record.sex}</td>
                           <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{record.contrado}</td>
