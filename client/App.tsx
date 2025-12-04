@@ -12,6 +12,8 @@ import Attendance from "./pages/Attendance";
 import Performance from "./pages/Performance";
 import Turnover from "./pages/Turnover";
 import Incidents from "./pages/Incidents";
+import Sortie from "./pages/Sortie";
+import Effectif from "./pages/Effectif";
 import Sector from "./pages/Sector";
 import AdminSuperadmin from "./pages/AdminSuperadmin";
 import AdminPointage from "./pages/AdminPointage";
@@ -36,6 +38,8 @@ export default function App() {
               <Route path="/performance" element={<Performance />} />
               <Route path="/turnover" element={<Turnover />} />
               <Route path="/incidents" element={<Incidents />} />
+              <Route path="/sortie" element={<Sortie />} />
+              <Route path="/effectif" element={<Effectif />} />
               <Route path="/sector" element={<Sector />} />
               <Route
                 path="/admin/superadmin"

@@ -15,9 +15,21 @@ const categories = [
   },
   {
     icon: "📋",
-    title: "Recrutement et intégration",
-    
+    title: "Recrutement",
+
     href: "/recruitment",
+  },
+  {
+    icon: "👥",
+    title: "Effectif",
+
+    href: "/effectif",
+  },
+  {
+    icon: "🚪",
+    title: "Sortie",
+
+    href: "/sortie",
   },
   {
     icon: "📅",
