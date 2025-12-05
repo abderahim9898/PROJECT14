@@ -105,7 +105,7 @@ export default function FileUploadSection({
         const end = Math.min(start + batchSize, data.rows.length);
         const batchData = data.rows.slice(start, end);
 
-        await fetch("/api/admin/upload", {
+        await fetch(apiUrl("/api/admin/upload"), {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
