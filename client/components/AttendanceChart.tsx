@@ -9,6 +9,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import * as XLSX from "xlsx";
+import { apiUrl } from "@/lib/api-config";
 
 interface GroupStats {
   name: string;
@@ -350,7 +351,7 @@ export default function AttendanceChart() {
             timeout = setTimeout(() => controller.abort(), 25000);
 
             console.log(`Frontend attempt ${attempt} to fetch attendance data...`);
-            response = await fetch("/api/attendance", {
+            response = await fetch(apiUrl("/api/attendance"), {
               method: "GET",
               signal: controller.signal,
               headers: { Accept: "application/json" }

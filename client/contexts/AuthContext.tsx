@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
+import { apiUrl } from "@/lib/api-config";
+
 export type Permission = "SUPERADMIN" | "POINTAGE" | "LABOURAL";
 
 export interface AuthSession {
@@ -39,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      const response = await fetch("/api/admin/auth");
+      const response = await fetch(apiUrl("/api/admin/auth"));
 
       if (!response.ok) {
         throw new Error("Unable to fetch authentication data from server");

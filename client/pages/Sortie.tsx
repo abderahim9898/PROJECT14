@@ -8,6 +8,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, 
   PieChart, Pie, Cell, LineChart, Line
 } from "recharts";
+import { apiUrl } from "@/lib/api-config";
 
 interface SortieRecord {
   qz: string;
@@ -55,7 +56,7 @@ export default function Sortie() {
         }, 60000);
 
         console.log("Fetching sortie data...");
-        const response = await fetch("/api/sortie", {
+        const response = await fetch(apiUrl("/api/sortie"), {
           signal: controller.signal,
           headers: { "Accept": "application/json" },
         });

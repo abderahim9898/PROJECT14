@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { apiUrl } from "@/lib/api-config";
 
 interface TurnoverRecord {
   month: string | number;
@@ -78,7 +79,7 @@ export default function Turnover() {
         }, 60000); // 60 second timeout
 
         console.log("Fetching turnover data...");
-        const response = await fetch("/api/turnover", {
+        const response = await fetch(apiUrl("/api/turnover"), {
           signal: controller.signal,
           headers: { "Accept": "application/json" },
         });

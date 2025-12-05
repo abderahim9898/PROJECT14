@@ -8,6 +8,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line
 } from "recharts";
+import { apiUrl } from "@/lib/api-config";
 
 const formatDate = (dateString: string): string => {
   try {
@@ -81,7 +82,7 @@ export default function Recruitment() {
         }, 40000);
 
         console.log(`Fetching recruitment data (attempt ${attempt})...`);
-        const response = await fetch("/api/recruitment", {
+        const response = await fetch(apiUrl("/api/recruitment"), {
           signal: controller.signal,
           headers: {
             "Accept": "application/json",
