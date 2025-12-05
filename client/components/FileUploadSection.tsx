@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Upload, Check, AlertCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import * as XLSX from "xlsx";
+import { apiUrl } from "@/lib/api-config";
 
 interface UploadedData {
   headers: string[];
