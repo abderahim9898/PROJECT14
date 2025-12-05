@@ -91,12 +91,61 @@ export async function getAllSupervisors(): Promise<Array<{ id: string; nom: stri
 }
 
 export async function getDashboardSummary() {
-  return {
-    totalWorkers: 0,
-    totalFarms: 0,
-    workersEntering: 0,
-    workersLeaving: 0,
-    farms: [],
-    workers: [],
-  };
+  try {
+    const response = await fetch(apiUrl("/api/workforce"));
+    if (!response.ok) {
+      console.error("Failed to fetch workforce data");
+      return {
+        totalWorkers: 0,
+        totalFarms: 0,
+        workersEntering: 0,
+        workersLeaving: 0,
+        farms: [],
+        workers: [],
+      };
+    }
+
+    const data = await response.json();
+
+    // Transform the API response to match the expected summary format
+    if (Array.isArray(data)) {
+      const uniqueFarms = new Set(data.map((w: any) => w.fermeId || w.farm).filter(Boolean));
+
+      return {
+        totalWorkers: data.length,
+        totalFarms: uniqueFarms.size,
+        workersEntering: 0, // Can be calculated from dates if needed
+        workersLeaving: 0,   // Can be calculated from dates if needed
+        farms: Array.from(uniqueFarms).map(farmId => ({
+          id: farmId as string,
+          nom: farmId as string,
+          totalOuvriers: data.filter((w: any) => (w.fermeId || w.farm) === farmId).length,
+          totalChambres: 0,
+          admins: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })),
+        workers: data,
+      };
+    }
+
+    return {
+      totalWorkers: 0,
+      totalFarms: 0,
+      workersEntering: 0,
+      workersLeaving: 0,
+      farms: [],
+      workers: [],
+    };
+  } catch (error) {
+    console.error("Error fetching dashboard summary:", error);
+    return {
+      totalWorkers: 0,
+      totalFarms: 0,
+      workersEntering: 0,
+      workersLeaving: 0,
+      farms: [],
+      workers: [],
+    };
+  }
 }
