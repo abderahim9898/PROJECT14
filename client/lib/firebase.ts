@@ -17,7 +17,9 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+// Disable Firestore as the app uses Google Sheets API via backend instead
+// export const db = getFirestore(app);
+export const db = null;
 
 export interface Worker {
   id: string;
