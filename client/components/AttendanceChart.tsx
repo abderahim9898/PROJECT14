@@ -351,7 +351,7 @@ export default function AttendanceChart() {
             timeout = setTimeout(() => controller.abort(), 25000);
 
             console.log(`Frontend attempt ${attempt} to fetch attendance data...`);
-            response = await fetch("/api/attendance", {
+            response = await fetch(apiUrl("/api/attendance"), {
               method: "GET",
               signal: controller.signal,
               headers: { Accept: "application/json" }
