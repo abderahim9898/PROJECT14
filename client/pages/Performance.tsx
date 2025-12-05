@@ -402,7 +402,7 @@ export default function Performance() {
           }
         }, 180000);
 
-        const response = await fetch("/api/performance", {
+        const response = await fetch(apiUrl("/api/performance"), {
           method: "GET",
           signal: abortController.signal,
           headers: { Accept: "application/json" },
