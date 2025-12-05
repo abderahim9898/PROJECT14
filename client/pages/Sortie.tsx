@@ -56,7 +56,7 @@ export default function Sortie() {
         }, 60000);
 
         console.log("Fetching sortie data...");
-        const response = await fetch("/api/sortie", {
+        const response = await fetch(apiUrl("/api/sortie"), {
           signal: controller.signal,
           headers: { "Accept": "application/json" },
         });
