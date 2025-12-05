@@ -57,22 +57,8 @@ export interface Farm {
 }
 
 export async function getWorkers(): Promise<Worker[]> {
-  try {
-    const workersCol = collection(db, "workers");
-    const snapshot = await getDocs(workersCol);
-    return snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Worker[];
-  } catch (error) {
-    // Return empty array if error occurs (including AbortError)
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.debug("getWorkers request was aborted");
-    } else {
-      console.error("Error fetching workers:", error);
-    }
-    return [];
-  }
+  // Firestore disabled - using Google Sheets API instead
+  return [];
 }
 
 export async function getActiveWorkers(): Promise<Worker[]> {
