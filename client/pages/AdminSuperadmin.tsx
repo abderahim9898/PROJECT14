@@ -6,6 +6,7 @@ import { LogOut, Shield, FileUp } from "lucide-react";
 import FileUploadSection from "@/components/FileUploadSection";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { apiUrl } from "@/lib/api-config";
 
 export default function AdminSuperadmin() {
   const { session, logout } = useAuth();
