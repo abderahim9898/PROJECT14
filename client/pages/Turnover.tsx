@@ -79,7 +79,7 @@ export default function Turnover() {
         }, 60000); // 60 second timeout
 
         console.log("Fetching turnover data...");
-        const response = await fetch("/api/turnover", {
+        const response = await fetch(apiUrl("/api/turnover"), {
           signal: controller.signal,
           headers: { "Accept": "application/json" },
         });
