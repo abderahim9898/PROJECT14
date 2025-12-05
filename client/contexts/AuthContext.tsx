@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
+import { apiUrl } from "@/lib/api-config";
+
 export type Permission = "SUPERADMIN" | "POINTAGE" | "LABOURAL";
 
 export interface AuthSession {
