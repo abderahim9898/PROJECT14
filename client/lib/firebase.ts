@@ -1,11 +1,4 @@
 import { initializeApp } from "firebase/app";
-import {
-  getFirestore,
-  collection,
-  query,
-  where,
-  getDocs,
-} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCKZpHRAm1W6lQddnArZo6Onxiwfngty6Y",
@@ -17,8 +10,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-// Disable Firestore as the app uses Google Sheets API via backend instead
-// export const db = getFirestore(app);
+// Firestore disabled - app uses Google Sheets API via backend instead
 export const db = null;
 
 export interface Worker {
