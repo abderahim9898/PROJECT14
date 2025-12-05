@@ -6,6 +6,7 @@ import { LogOut, Briefcase, FileUp } from "lucide-react";
 import FileUploadSection from "@/components/FileUploadSection";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { apiUrl } from "@/lib/api-config";
 
 export default function AdminLaboural() {
   const { session, logout } = useAuth();
