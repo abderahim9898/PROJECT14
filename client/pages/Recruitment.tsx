@@ -8,6 +8,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line
 } from "recharts";
+import { apiUrl } from "@/lib/api-config";
 
 const formatDate = (dateString: string): string => {
   try {
@@ -75,11 +76,13 @@ export default function Recruitment() {
         controller = new AbortController();
         timeoutId = setTimeout(() => {
           console.warn("Recruitment fetch timeout - aborting");
-          controller?.abort();
-        }, 30000);
+          if (controller && !controller.signal.aborted) {
+            controller.abort();
+          }
+        }, 40000);
 
         console.log(`Fetching recruitment data (attempt ${attempt})...`);
-        const response = await fetch("/api/recruitment", {
+        const response = await fetch(apiUrl("/api/recruitment"), {
           signal: controller.signal,
           headers: {
             "Accept": "application/json",
@@ -191,15 +194,19 @@ export default function Recruitment() {
     fetchRecruitmentData();
 
     return () => {
-      isMounted = false;
-      if (timeoutId) clearTimeout(timeoutId);
-      if (retryTimeoutId) clearTimeout(retryTimeoutId);
-      if (controller) {
-        try {
-          controller.abort();
-        } catch (e) {
-          // Ignore abort errors
+      try {
+        isMounted = false;
+        if (timeoutId) clearTimeout(timeoutId);
+        if (retryTimeoutId) clearTimeout(retryTimeoutId);
+        if (controller && !controller.signal.aborted) {
+          try {
+            controller.abort();
+          } catch (e) {
+            // Ignore abort errors
+          }
         }
+      } catch (e) {
+        // Ignore all cleanup errors
       }
     };
   }, [retryKey]);
@@ -295,6 +302,7 @@ export default function Recruitment() {
 
   const temporaryRecruits = stats.byInterime["Oui"] || stats.byInterime["OUI"] || 0;
   const permanentRecruits = stats.totalRecruits - temporaryRecruits;
+  const uniqueInterimTypes = Object.keys(stats.byInterime).length;
 
   const statCards: StatCard[] = [
     {
@@ -305,16 +313,11 @@ export default function Recruitment() {
     },
     {
       icon: <Briefcase className="w-6 h-6" />,
-      label: "Recrutements CDI",
-      value: permanentRecruits,
+      label: "Type de Interime",
+      value: uniqueInterimTypes,
       color: "bg-green-500/10 border-green-200 dark:border-green-900",
     },
-    {
-      icon: <TrendingUp className="w-6 h-6" />,
-      label: "Recrutements Intérim",
-      value: temporaryRecruits,
-      color: "bg-orange-500/10 border-orange-200 dark:border-orange-900",
-    },
+    
     {
       icon: <Calendar className="w-6 h-6" />,
       label: "Départements",
@@ -498,7 +501,7 @@ export default function Recruitment() {
               {/* Recruitment by Department */}
               <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-6">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                  Recrutements par Département (Top 8)
+                  Recrutements par Département 
                 </h2>
                 <div className="w-full h-80">
                   <ResponsiveContainer width="100%" height="100%">

@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { apiUrl } from "@/lib/api-config";
 
 interface Group {
   name: string;
@@ -396,10 +397,12 @@ export default function Performance() {
         setError(null);
 
         const timeoutId = setTimeout(() => {
-          abortController.abort();
+          if (!abortController.signal.aborted) {
+            abortController.abort();
+          }
         }, 180000);
 
-        const response = await fetch("/api/performance", {
+        const response = await fetch(apiUrl("/api/performance"), {
           method: "GET",
           signal: abortController.signal,
           headers: { Accept: "application/json" },
@@ -499,11 +502,17 @@ export default function Performance() {
     fetchPerformanceData();
 
     return () => {
-      isMounted = false;
       try {
-        abortController.abort();
+        isMounted = false;
+        if (!abortController.signal.aborted) {
+          try {
+            abortController.abort();
+          } catch (e) {
+            // Ignore errors from abort
+          }
+        }
       } catch (e) {
-        // Ignore errors from abort
+        // Ignore all cleanup errors
       }
     };
   }, [retryKey]);

@@ -1,11 +1,5 @@
 import { initializeApp } from "firebase/app";
-import {
-  getFirestore,
-  collection,
-  query,
-  where,
-  getDocs,
-} from "firebase/firestore";
+import { apiUrl } from "./api-config";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCKZpHRAm1W6lQddnArZo6Onxiwfngty6Y",
@@ -17,7 +11,8 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+// Firestore disabled - this app uses Google Sheets API via backend instead
+export const db = null;
 
 export interface Worker {
   id: string;
@@ -62,183 +57,88 @@ export interface Farm {
   updatedAt: Date;
 }
 
+// All data functions return empty arrays - data comes from Google Sheets API via backend
 export async function getWorkers(): Promise<Worker[]> {
-  try {
-    const workersCol = collection(db, "workers");
-    const snapshot = await getDocs(workersCol);
-    return snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Worker[];
-  } catch (error) {
-    // Return empty array if error occurs (including AbortError)
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.debug("getWorkers request was aborted");
-    } else {
-      console.error("Error fetching workers:", error);
-    }
-    return [];
-  }
+  return [];
 }
 
 export async function getActiveWorkers(): Promise<Worker[]> {
-  try {
-    const workersCol = collection(db, "workers");
-    const q = query(workersCol, where("statut", "==", "actif"));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Worker[];
-  } catch (error) {
-    // Return empty array if error occurs (including AbortError)
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.debug("getActiveWorkers request was aborted");
-    } else {
-      console.error("Error fetching active workers:", error);
-    }
-    return [];
-  }
+  return [];
 }
 
-export async function getWorkersEntering(days: number = 30): Promise<Worker[]> {
-  try {
-    const workers = await getWorkers();
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - days);
-
-    return workers.filter((worker) => {
-      if (!worker.dateEntree) return false;
-      const entryDate = new Date(worker.dateEntree);
-      return entryDate >= cutoffDate;
-    });
-  } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.debug("getWorkersEntering request was aborted");
-    } else {
-      console.error("Error fetching workers entering:", error);
-    }
-    return [];
-  }
+export async function getWorkersEntering(): Promise<Worker[]> {
+  return [];
 }
 
-export async function getWorkersLeaving(days: number = 30): Promise<Worker[]> {
-  try {
-    const workers = await getWorkers();
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - days);
-
-    return workers.filter((worker) => {
-      if (!worker.dateSortie) return false;
-      const exitDate = new Date(worker.dateSortie);
-      return exitDate >= cutoffDate;
-    });
-  } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.debug("getWorkersLeaving request was aborted");
-    } else {
-      console.error("Error fetching workers leaving:", error);
-    }
-    return [];
-  }
+export async function getWorkersLeaving(): Promise<Worker[]> {
+  return [];
 }
 
 export async function getFarms(): Promise<Farm[]> {
-  try {
-    const farmesCol = collection(db, "fermes");
-    const snapshot = await getDocs(farmesCol);
-    return snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Farm[];
-  } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.debug("getFarms request was aborted");
-    } else {
-      console.error("Error fetching farms:", error);
-    }
-    return [];
-  }
+  return [];
 }
 
-export async function getWorkersByFarm(farmId: string): Promise<Worker[]> {
-  try {
-    const workersCol = collection(db, "workers");
-    const q = query(workersCol, where("fermeId", "==", farmId));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Worker[];
-  } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.debug("getWorkersByFarm request was aborted");
-    } else {
-      console.error("Error fetching workers by farm:", error);
-    }
-    return [];
-  }
+export async function getWorkersByFarm(): Promise<Worker[]> {
+  return [];
 }
 
-export async function getSupervisorById(supervisorId: string): Promise<{ id: string; nom: string } | null> {
-  try {
-    const supervisorsCol = collection(db, "supervisors");
-    const q = query(supervisorsCol, where("id", "==", supervisorId));
-    const snapshot = await getDocs(q);
-    if (snapshot.docs.length > 0) {
-      const doc = snapshot.docs[0];
-      return {
-        id: doc.id,
-        nom: doc.data().nom || supervisorId,
-      };
-    }
-    return null;
-  } catch (error) {
-    console.error("Error fetching supervisor:", error);
-    return null;
-  }
+export async function getSupervisorById(): Promise<{ id: string; nom: string } | null> {
+  return null;
 }
 
 export async function getAllSupervisors(): Promise<Array<{ id: string; nom: string }>> {
-  try {
-    const supervisorsCol = collection(db, "supervisors");
-    const snapshot = await getDocs(supervisorsCol);
-    return snapshot.docs.map((doc) => ({
-      id: doc.id,
-      nom: doc.data().nom || doc.id,
-    }));
-  } catch (error) {
-    console.error("Error fetching supervisors:", error);
-    return [];
-  }
+  return [];
 }
 
 export async function getDashboardSummary() {
   try {
-    // Use Promise.allSettled instead of Promise.all to handle individual failures gracefully
-    const results = await Promise.allSettled([
-      getActiveWorkers(),
-      getFarms(),
-      getWorkersEntering(30),
-      getWorkersLeaving(30),
-    ]);
+    const response = await fetch(apiUrl("/api/workforce"));
+    if (!response.ok) {
+      console.error("Failed to fetch workforce data");
+      return {
+        totalWorkers: 0,
+        totalFarms: 0,
+        workersEntering: 0,
+        workersLeaving: 0,
+        farms: [],
+        workers: [],
+      };
+    }
 
-    const workers = results[0].status === 'fulfilled' ? results[0].value : [];
-    const farms = results[1].status === 'fulfilled' ? results[1].value : [];
-    const entering = results[2].status === 'fulfilled' ? results[2].value : [];
-    const leaving = results[3].status === 'fulfilled' ? results[3].value : [];
+    const data = await response.json();
+
+    // Transform the API response to match the expected summary format
+    if (Array.isArray(data)) {
+      const uniqueFarms = new Set(data.map((w: any) => w.fermeId || w.farm).filter(Boolean));
+
+      return {
+        totalWorkers: data.length,
+        totalFarms: uniqueFarms.size,
+        workersEntering: 0, // Can be calculated from dates if needed
+        workersLeaving: 0,   // Can be calculated from dates if needed
+        farms: Array.from(uniqueFarms).map(farmId => ({
+          id: farmId as string,
+          nom: farmId as string,
+          totalOuvriers: data.filter((w: any) => (w.fermeId || w.farm) === farmId).length,
+          totalChambres: 0,
+          admins: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })),
+        workers: data,
+      };
+    }
 
     return {
-      totalWorkers: workers.length,
-      totalFarms: farms.length,
-      workersEntering: entering.length,
-      workersLeaving: leaving.length,
-      farms,
-      workers,
+      totalWorkers: 0,
+      totalFarms: 0,
+      workersEntering: 0,
+      workersLeaving: 0,
+      farms: [],
+      workers: [],
     };
   } catch (error) {
-    // If all promises fail, return empty data structure
-    console.error("Error in getDashboardSummary:", error);
+    console.error("Error fetching dashboard summary:", error);
     return {
       totalWorkers: 0,
       totalFarms: 0,

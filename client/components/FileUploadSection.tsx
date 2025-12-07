@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Upload, Check, AlertCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import * as XLSX from "xlsx";
+import { apiUrl } from "@/lib/api-config";
 
 interface UploadedData {
   headers: string[];
@@ -104,7 +105,7 @@ export default function FileUploadSection({
         const end = Math.min(start + batchSize, data.rows.length);
         const batchData = data.rows.slice(start, end);
 
-        await fetch("/api/admin/upload", {
+        await fetch(apiUrl("/api/admin/upload"), {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

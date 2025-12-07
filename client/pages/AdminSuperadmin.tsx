@@ -6,6 +6,7 @@ import { LogOut, Shield, FileUp } from "lucide-react";
 import FileUploadSection from "@/components/FileUploadSection";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { apiUrl } from "@/lib/api-config";
 
 export default function AdminSuperadmin() {
   const { session, logout } = useAuth();
@@ -63,7 +64,7 @@ export default function AdminSuperadmin() {
 
     setTurnoverLoading(true);
     try {
-      const response = await fetch("/api/admin/upload", {
+      const response = await fetch(apiUrl("/api/admin/upload"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
